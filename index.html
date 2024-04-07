@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat App</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="auth-container">
+      <h2>Chat App</h2>
+      <div class="form-container">
+        <input type="email" id="email-input" placeholder="Email" required>
+        <input type="password" id="password-input" placeholder="Password" required>
+        <button id="login-button" class="btn">Login</button>
+        <button id="signup-button" class="btn">Sign Up</button>
+      </div>
+      <div id="error-message" class="error-message"></div>
+    </div>
+
+    <div class="join-container hidden">
+      <h2>Join Chat</h2>
+      <div class="form-container">
+        <input type="text" id="join-code-input" placeholder="Enter join code" required>
+        <button id="join-button" class="btn">Join</button>
+      </div>
+      <div id="join-error-message" class="error-message"></div>
+    </div>
+
+    <div class="chat-container hidden">
+      <div class="chat-header">
+        <h2>Welcome, <span id="username-display"></span></h2>
+        <div>
+          <button id="clear-chat-button" class="btn">Clear Chat</button>
+          <button id="logout-button" class="btn">Logout</button>
+        </div>
+      </div>
+      <div class="message-container">
+        <div id="message-container"></div>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="message-input" placeholder="Type your message...">
+<!--         <input type="file" id="file-input" accept="image/*,video/*,audio/*"> -->
+        <button id="send-button" class="btn">Send</button>
+<!--         <button id="send-file-button" class="btn">Send File</button> -->
+      </div>
+      <div id="progress-container" class="progress-container hidden">
+        <div id="progress-bar" class="progress-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
