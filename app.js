@@ -1,11 +1,12 @@
 // Import necessary Firebase modules
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.4.0/firebase-app.js';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/9.4.0/firebase-auth.js';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from 'https://www.gstatic.com/firebasejs/9.4.0/firebase-auth.js';
 import { getDatabase, ref, push, onChildAdded, remove } from 'https://www.gstatic.com/firebasejs/9.4.0/firebase-database.js';
 import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.4.0/firebase-storage.js';
 
 // Firebase configuration
 const firebaseConfig = {
+  // Your Firebase configuration details
   apiKey: "AIzaSyAdzwse7zkOmUVl8_Ptft_R_UXXUueIsXU",
   authDomain: "psdev-personal-use.firebaseapp.com",
   databaseURL: "https://psdev-personal-use-default-rtdb.firebaseio.com",
@@ -22,7 +23,7 @@ const auth = getAuth(firebaseApp);
 const database = getDatabase(firebaseApp);
 const storage = getStorage(firebaseApp);
 
-// DOM elements (Assuming these elements exist in your HTML)
+// DOM elements
 const authContainer = document.querySelector('.auth-container');
 const joinContainer = document.querySelector('.join-container');
 const chatContainer = document.querySelector('.chat-container');
@@ -31,15 +32,14 @@ const passwordInput = document.getElementById('password-input');
 const joinCodeInput = document.getElementById('join-code-input');
 const loginButton = document.getElementById('login-button');
 const signupButton = document.getElementById('signup-button');
+const forgotPasswordButton = document.getElementById('forgot-password-button');
 const joinButton = document.getElementById('join-button');
 const logoutButton = document.getElementById('logout-button');
 const clearChatButton = document.getElementById('clear-chat-button');
 const usernameDisplay = document.getElementById('username-display');
 const messageContainer = document.getElementById('message-container');
 const messageInput = document.getElementById('message-input');
-const fileInput = document.getElementById('file-input');
 const sendButton = document.getElementById('send-button');
-const sendFileButton = document.getElementById('send-file-button');
 const authErrorMessage = document.getElementById('error-message');
 const joinErrorMessage = document.getElementById('join-error-message');
 const progressContainer = document.getElementById('progress-container');
@@ -74,6 +74,18 @@ async function handleLogin() {
     const username = email.split('@')[0];
     currentUser = { email, username };
     updateUI();
+  } catch (error) {
+    authErrorMessage.textContent = error.message;
+  }
+}
+
+// Function to handle password reset
+async function handleForgotPassword() {
+  const email = emailInput.value;
+
+  try {
+    await sendPasswordResetEmail(auth, email);
+    authErrorMessage.textContent = 'Password reset email sent. Check your inbox.';
   } catch (error) {
     authErrorMessage.textContent = error.message;
   }
@@ -134,36 +146,6 @@ function sendMessage() {
   }
 }
 
-// Function to send a file
-function sendFile() {
-  const file = fileInput.files[0];
-  if (file && currentUser) {
-    const storageReference = storageRef(storage, `files/${file.name}`);
-    const uploadTask = uploadBytesResumable(storageReference, file);
-
-    uploadTask.on('state_changed', (snapshot) => {
-      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      progressBar.style.width = `${progress}%`;
-      if (progress === 100) {
-        progressContainer.classList.add('hidden');
-      } else {
-        progressContainer.classList.remove('hidden');
-      }
-    }, (error) => {
-      console.error('Error uploading file:', error);
-    }, () => {
-      getDownloadURL(storageReference).then((downloadURL) => {
-        push(ref(database, 'messages'), {
-          sender: currentUser.username,
-          text: '',
-          fileUrl: downloadURL
-        });
-        fileInput.value = '';
-      });
-    });
-  }
-}
-
 // Function to append a message to the message container
 function appendMessage(sender, text, fileUrl) {
   const messageElement = document.createElement('div');
@@ -195,11 +177,11 @@ function clearChat() {
 // Event listeners
 loginButton.addEventListener('click', handleLogin);
 signupButton.addEventListener('click', handleSignup);
+forgotPasswordButton.addEventListener('click', handleForgotPassword);
 joinButton.addEventListener('click', handleJoin);
 logoutButton.addEventListener('click', handleLogout);
 clearChatButton.addEventListener('click', clearChat);
 sendButton.addEventListener('click', sendMessage);
-sendFileButton.addEventListener('click', sendFile);
 messageInput.addEventListener('keypress', (event) => {
   if (event.key === 'Enter') {
     sendMessage();
